@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Grade Calculator</title>
+  <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+      text-align: center;
+    }
+    th, td {
+      padding: 10px;
+    }
+    #error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center;">Grade Calculator</h1>
+
+  <div style="text-align:center;">
+    <button onclick="addActivity()">Add Activity</button>
+    Activity <input type="text" id="activityName">
+    Weight <input type="number" id="activityWeight">
+    <br><br>
+    <button onclick="addGrade()">Add Grade</button>
+    Grade <input type="number" id="gradeValue">
+    Activity no <input type="number" id="gradeActivityNo">
+    <br><br>
+    <button onclick="deleteActivity()">Delete Activity</button>
+    <br><br>
+  </div>
+
+  <table align="center" id="activityTable">
+    <tr>
+      <th>No</th>
+      <th>Activity</th>
+      <th>Weight</th>
+      <th>Grade</th>
+    </tr>
+ 
+  </table>
+
+  <div style="text-align:center;">
+    <p id="error">Error Message:</p>
+  </div>
+
+<script>
+  let activities = [
+    { name: "Lab1", weight: 10 },
+    { name: "Lab2", weight: 20 },
+    { name: "Test1", weight: 30 },
+    { name: "Test2", weight: 40 }
+  ];
+
+  let nextActivityNumber = activities.length + 1; // Initialize to 5
+
+  function renderTable() {
+    const table = document.getElementById("activityTable");
+    // Remove all rows except header
+    while (table.rows.length > 1) {
+      table.deleteRow(1);
+    }
+    activities.forEach((act, index) => {
+      const row = table.insertRow();
+      row.insertCell(0).textContent = index + 1;
+      act.activityNo = index + 1; // Assign activityNo to initial activities
+      row.insertCell(1).textContent = act.name;
+      row.insertCell(2).textContent = act.weight;
+      row.insertCell(3).textContent = act.grade !== undefined ? act.grade : "";
+    });
+  }
+
+  function addActivity() {
+    const name = document.getElementById("activityName").value.trim();
+    const weight = parseInt(document.getElementById("activityWeight").value.trim());
+
+    if (!name) {
+      document.getElementById("error").textContent = "Error Message: Activity name is rejected.";
+      return;
+    }
+
+    if (isNaN(weight) || weight < 1 || weight > 100) {
+      document.getElementById("error").textContent = "Error Message: Weight is rejected.";
+      return;
+    }
+
+    activities.push({ name: name, weight: weight, activityNo: nextActivityNumber });
+    renderTableWithPersistentNumbers();
+    nextActivityNumber++;
+    document.getElementById("error").textContent = "Error Message:";
+    document.getElementById("activityName").value = "";
+    document.getElementById("activityWeight").value = "";
+  }
+
+  function addGrade() {
+    const grade = parseFloat(document.getElementById("gradeValue").value.trim());
+    const activityNo = parseInt(document.getElementById("gradeActivityNo").value.trim());
+
+    if (isNaN(grade) || grade < 0 || grade > 100) {
+      document.getElementById("error").textContent = "Error Message: Grade is rejected.";
+      return;
+    }
+
+    const activityToUpdate = activities.find(act => act.activityNo === activityNo);
+
+    if (activityToUpdate) {
+      activityToUpdate.grade = grade;
+      renderTableWithPersistentNumbers();
+    } else {
+      document.getElementById("error").textContent = "Error Message: Activity No is rejected.";
+    }
+    document.getElementById("error").textContent = "Error Message:";
+    document.getElementById("gradeValue").value = "";
+    document.getElementById("gradeActivityNo").value = "";
+  }
+
+  function deleteActivity() {
+    if (activities.length === 0) {
+      document.getElementById("error").textContent = "Error Message: No more activities to remove.";
+      return;
+    }
+
+    activities.pop();
+    renderTableWithPersistentNumbers();
+    document.getElementById("error").textContent = "Error Message:";
+  }
+
+  function renderTableWithPersistentNumbers() {
+    const table = document.getElementById("activityTable");
+    while (table.rows.length > 1) {
+      table.deleteRow(1);
+    }
+    activities.forEach((act) => {
+      const row = table.insertRow();
+      row.insertCell(0).textContent = act.activityNo;
+      row.insertCell(1).textContent = act.name;
+      row.insertCell(2).textContent = act.weight;
+      row.insertCell(3).textContent = act.grade !== undefined ? act.grade : "";
+    });
+  }
+
+  // Initial rendering of the table
+  renderTable();
+</script>
+</body>
+</html>
